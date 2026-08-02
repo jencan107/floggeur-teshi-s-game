@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>PRÉSIDENT + QUIZ SIONISTE + INTERROGATION</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================
+       STYLES GLOBAUX (identiques aux jeux 1 et 2)
+       ============================================================ */
+    :root {
+      --bg-dark: #020304;
+      --crt-border: #151a17;
+      --crt-bg: #060908;
+      --color-mil: #ef4444;
+      --color-cit: #f97316;
+      --color-arg: #eab308;
+      --color-san: #14b8a6;
+      --color-mor: #a78bfa;
+      --font-pixel: 'Press Start 2P', monospace;
+      --font-mono: 'Share Tech Mono', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    html, body {
+      width: 100%; min-height: 100vh;
+      background: var(--bg-dark);
+      color: #e2e8f0;
+      font-family: var(--font-pixel);
+      display: flex; justify-content: center; align-items: center;
+      padding: 10px; overflow-x: hidden;
+    }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #0a0c0e; }
+    ::-webkit-scrollbar-thumb { background: var(--color-mil); border-radius: 2px; }
+
+    .nav-bar {
+      position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-wrap: wrap; gap: 6px; z-index: 100;
+      background: rgba(2,3,4,0.92); padding: 6px 12px; border-radius: 14px;
+      border: 2px solid #1e293b;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.8);
+    }
+    .nav-btn {
+      background: #1a1d20; border: 2px solid var(--color-mil);
+      color: #fff; font-family: var(--font-pixel); font-size: 0.45rem;
+      padding: 5px 10px; cursor: pointer; border-radius: 6px;
+      box-shadow: 0 3px 0 #050607; transition: all 0.15s ease;
+    }
+    .nav-btn:hover { background: #3b1111; transform: translateY(-2px); }
+    .nav-btn.active {
+      background: var(--color-mil); border-color: #fff;
+      box-shadow: 0 0 20px rgba(239,68,68,0.3), 0 3px 0 #7f1d1d;
+    }
+    @media (max-width: 700px) { .nav-btn { font-size: 0.35rem; padding: 4px 6px; } }
+
+    .bunker-outer-wrapper {
+      position: relative;
+      width: 100%; max-width: 1280px;
+      background: radial-gradient(circle at center, #2b3036 0%, #111417 70%, #050607 100%);
+      border: 12px solid #1a1d20;
+      border-radius: 32px;
+      box-shadow: inset 0 0 80px rgba(0,0,0,0.98), 0 30px 80px rgba(0,0,0,0.99);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      margin-top: 70px;
+      min-height: 85vh;
+    }
+
+    .game-container { display: none; flex-direction: column; height: 100%; animation: fadeIn 0.5s ease; }
+    .game-container.active { display: flex; }
+    @keyframes fadeIn { 0% { opacity:0; transform:scale(0.97); } 100% { opacity:1; transform:scale(1); } }
+
+    .crt-screen-container {
+      flex:1; background: var(--crt-bg);
+      border:6px solid var(--crt-border);
+      border-radius:20px; position:relative; overflow:hidden;
+      display:flex; flex-direction:column; justify-content:flex-start;
+      padding:15px; box-shadow:inset 0 0 80px rgba(0,0,0,1);
+      margin-bottom:12px;
+      min-height: 380px;
+    }
+    .crt-screen-container::before {
+      content:""; display:block; position:absolute; top:0;left:0;bottom:0;right:0;
+      background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.35) 50%),
+                  linear-gradient(90deg, rgba(255,0,0,0.02), rgba(0,255,0,0.01), rgba(0,0,255,0.02));
+      z-index:20; background-size:100% 4px, 6px 100%; pointer-events:none;
+      animation: scanlineMove 8s linear infinite;
+    }
+    @keyframes scanlineMove { 0% { background-position: 0 0, 0 0; } 100% { background-position: 0 100%, 0 0; } }
+
+    .header-panel { position:relative; z-index:5; text-align:center; border-bottom:3px double #1c241f; padding-bottom:8px; margin-bottom:8px; }
+    .main-title { font-size:1rem; color:var(--color-mil); letter-spacing:2px; text-shadow:0 0 12px rgba(239,68,68,0.5); }
+    .sub-title { font-size:0.45rem; color:var(--color-arg); margin-top:4px; font-family:var(--font-mono); }
+
+    .dialogue-card {
+      position:relative; z-index:5; background:#0b100d;
+      border:3px solid var(--color-mil); border-radius:10px;
+      padding:10px; display:flex; gap:10px; align-items:center;
+      box-shadow:0 4px 20px rgba(0,0,0,0.9); min-height:110px; margin-bottom:12px;
+    }
+    .pnj-portrait-box {
+      width:70px; height:70px; background:#000; border:2px solid var(--color-mil);
+      border-radius:6px; overflow:hidden; flex-shrink:0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .pnj-portrait-box canvas { width:100%; height:100%; image-rendering:pixelated; }
+    .speaker-title { color:var(--color-mil); margin-bottom:4px; font-size:0.55rem; }
+    .speech-bubble { color:#cbd5e1; font-size:0.6rem; line-height:1.6; }
+
+    .choices-container {
+      position:relative; z-index:5; display:flex; flex-direction:column;
+      gap:6px; margin-top:6px;
+    }
+    .choice-button {
+      background:#120606; border:2px solid #3b1111; border-radius:6px;
+      color:#fca5a5;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 3px 0 #050706;
+      text-align: left;
+      line-height: 1.4;
+    }
+    .choice-button:hover { background:#230808; border-color:var(--color-mil); color:#fff; transform:translateX(6px); }
+    .choice-button:active { transform:translateY(3px); box-shadow:0 1px 0 #050706; }
+    .choice-button:disabled { opacity:0.4; cursor:not-allowed; transform:none !important; }
+
+    .bottom-dashboard {
+      background:#080b0c; border:4px solid var(--crt-border); border-radius:12px;
+      padding:10px 12px; display:flex; flex-direction:column; gap:6px;
+      box-shadow:inset 0 0 30px rgba(0,0,0,0.95);
+    }
+    .gauges-labels-row {
+      display:grid; grid-template-columns:repeat(5,1fr); gap:6px; text-align:center;
+    }
+    .gauge-card-item { display:flex; flex-direction:column; align-items:center; gap:2px; background:rgba(0,0,0,0.5); padding:4px; border-radius:6px; border:1px solid #1e293b; }
+    .gauge-labels { display:flex; justify-content:space-between; width:100%; font-size:0.3rem; color:#94a3b8; font-family:var(--font-mono); }
+    .gauge-horizontal-container { width:100%; height:12px; background:#020405; border:2px solid #131916; border-radius:4px; overflow:hidden; }
+    .gauge-fill-bar { height:100%; transition:width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .fill-militaire { background: linear-gradient(to right, #7f1d1d, #ef4444); }
+    .fill-peuple    { background: linear-gradient(to right, #78350f, #f97316); }
+    .fill-tresor    { background: linear-gradient(to right, #713f12, #eab308); }
+    .fill-sante     { background: linear-gradient(to right, #064e3b, #14b8a6); }
+    .fill-morale    { background: linear-gradient(to right, #4c1d95, #a78bfa); }
+    .gauge-value { font-size:0.4rem; color:#cbd5e1; }
+
+    .game-over-overlay {
+      position:absolute; top:0; left:0; right:0; bottom:0;
+      background:rgba(3,7,18,0.97); z-index:50; display:none;
+      flex-direction:column; align-items:center; justify-content:center;
+      padding:20px; text-align:center; animation: fadeIn 0.5s ease;
+    }
+    .game-over-title { color:var(--color-mil); font-size:1.2rem; text-shadow:0 0 30px red; }
+    .game-over-desc { color:#94a3b8; font-size:0.7rem; margin:8px 0; max-width:500px; }
+    .btn-restart {
+      padding:10px 20px; background:var(--color-mil); color:#fff; border:none;
+      font-family:var(--font-pixel); font-size:0.55rem; cursor:pointer;
+      border-radius:6px; box-shadow:0 4px 0 #7f1d1d; margin:4px;
+      transition:all 0.15s;
+    }
+    .btn-restart:hover { background:#f87171; transform:translateY(-2px); box-shadow:0 6px 0 #7f1d1d; }
+    .btn-restart:active { transform:translateY(4px); box-shadow:0 2px 0 #7f1d1d; }
+
+    .particle-container {
+      position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:15; overflow:hidden;
+    }
+    .particle {
+      position:absolute; width:4px; height:4px; background:var(--color-mil); border-radius:50%;
+      animation: particleFloat 3s ease-out forwards; opacity:0.8;
+    }
+    @keyframes particleFloat {
+      0% { transform:translateY(0) scale(1); opacity:0.8; }
+      100% { transform:translateY(-120px) scale(0); opacity:0; }
+    }
+    .history-log-container { background:#020617; padding:8px; max-height:120px; overflow-y:auto; font-size:0.4rem; color:#64748b; margin-bottom:10px; width:90%; border-radius:6px; text-align:left; }
+
+    .status-bar {
+      display:flex; justify-content:space-between; flex-wrap:wrap; gap:4px;
+      background:rgba(15,23,42,0.9); border:2px solid #1e293b; border-radius:6px;
+      padding:6px; margin-bottom:8px;
+    }
+    .status-item { font-size:0.45rem; }
+    .status-item .label { color:#94a3b8; }
+    .status-item .value { color:#fbbf24; }
+
+    /* ============================================================
+       STYLES SPÉCIFIQUES AU JEU 2 (SIONISTE)
+       ============================================================ */
+    .sioniste-choices {
+      display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:10px 0;
+    }
+    .sioniste-choices .choice-button {
+      flex:1; min-width:120px; text-align:center;
+    }
+    .sioniste-choices .choice-button.correct {
+      border-color: #14b8a6; background:#064e3b; color:#fff;
+    }
+    .sioniste-choices .choice-button.wrong {
+      border-color: #ef4444; background:#7f1d1d; color:#fff;
+    }
+    .sioniste-portrait {
+      width:120px; height:120px; border-radius:8px; border:2px solid var(--color-mil);
+      object-fit:cover; background:#000; margin:0 auto 10px;
+      image-rendering:pixelated;
+    }
+    .sioniste-name { font-size:0.8rem; color:var(--color-mil); text-align:center; margin-bottom:6px; }
+    .sioniste-proof { background:#0b100d; border:2px solid var(--color-arg); border-radius:6px; padding:10px; font-size:0.55rem; color:#cbd5e1; margin:8px 0; text-align:center; min-height:50px; display:none; }
+    .sioniste-progress { font-size:0.5rem; color:#94a3b8; text-align:center; margin:4px 0; }
+
+    /* ============================================================
+       STYLES SPÉCIFIQUES AU JEU 3 (INTERROGATION)
+       ============================================================ */
+    .interro-suspect-card {
+      background:#0b100d; border:2px solid var(--color-san); border-radius:8px;
+      padding:12px; margin:6px 0; display:flex; gap:15px; align-items:center;
+      flex-wrap:wrap;
+    }
+    .interro-suspect-card .portrait-box {
+      width:70px; height:70px; background:#000; border:2px solid var(--color-san);
+      border-radius:6px; overflow:hidden; flex-shrink:0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .interro-suspect-card .portrait-box canvas { width:100%; height:100%; image-rendering:pixelated; }
+    .interro-suspect-info { flex:1; }
+    .interro-suspect-info .name { color:var(--color-san); font-size:0.7rem; }
+    .interro-suspect-info .desc { color:#94a3b8; font-size:0.45rem; margin-top:4px; }
+
+    .interro-preview {
+      background:#0b100d; border:2px solid var(--color-arg); border-radius:6px;
+      padding:10px; margin:6px 0; font-size:0.5rem; color:#fbbf24;
+      text-align:center; line-height:1.5;
+    }
+    .interro-preview .crime { color:#ef4444; font-weight:bold; }
+    .interro-preview .victim { color:#f97316; }
+    .interro-preview .reproche { color:#94a3b8; }
+
+    .interro-question-area { margin:6px 0; width:100%; }
+    .interro-question-area .q { color:#cbd5e1; font-size:0.55rem; }
+    .interro-question-area .a { color:#fbbf24; font-size:0.5rem; font-style:italic; margin-top:4px; }
+
+    .interro-input-area { display:flex; gap:8px; margin:6px 0; flex-wrap:wrap; }
+    .interro-input-area input {
+      flex:1; min-width:150px; padding:8px 12px; background:#0b100d; border:2px solid #1e293b;
+      border-radius:6px; color:#e2e8f0; font-family:var(--font-mono); font-size:0.55rem;
+      outline:none; transition:border 0.3s;
+    }
+    .interro-input-area input:focus { border-color:var(--color-san); }
+    .interro-input-area input:disabled { opacity:0.4; cursor:not-allowed; }
+    .interro-input-area .choice-button { padding:8px 16px; font-size:0.55rem; }
+
+    .interro-questions-log { margin:4px 0; max-height:80px; overflow-y:auto; }
+    .interro-questions-log .entry { font-size:0.4rem; color:#94a3b8; padding:2px 0; border-bottom:1px solid #131916; }
+    .interro-questions-log .entry .q { color:#cbd5e1; }
+    .interro-questions-log .entry .a { color:#fbbf24; font-style:italic; }
+
+    .interro-actions { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin:8px 0; }
+    .interro-actions .choice-button { flex:1; min-width:100px; text-align:center; }
+    .interro-actions .choice-button.btn-prison { border-color:var(--color-mil); }
+    .interro-actions .choice-button.btn-release { border-color:var(--color-san); }
+
+    .interro-progress { font-size:0.45rem; color:#94a3b8; text-align:center; margin:4px 0; }
+    .interro-feedback { background:#0b100d; border:2px solid var(--color-arg); border-radius:6px; padding:10px; font-size:0.5rem; color:#fbbf24; margin:6px 0; text-align:center; min-height:40px; display:none; }
+
+    @media (max-width:800px){
+      .gauges-labels-row { grid-template-columns:1fr 1fr 1fr; }
+      .main-title { font-size:0.7rem; }
+      .nav-btn { font-size:0.3rem; padding:3px 5px; }
+      .dialogue-card { flex-direction:column; align-items:stretch; }
+      .pnj-portrait-box { width:50px; height:50px; align-self:center; }
+      .choice-button { font-size:0.55rem; padding:8px 12px; }
+      .sioniste-portrait { width:90px; height:90px; }
+      .interro-suspect-card .portrait-box { width:50px; height:50px; }
+      .status-item { font-size:0.35rem; }
+      .interro-input-area input { font-size:0.45rem; padding:6px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== NAVIGATION ===== -->
+<div class="nav-bar">
+  <button class="nav-btn active" id="nav-dictator" onclick="switchGame('dictator')">PRÉSIDENT</button>
+  <button class="nav-btn" id="nav-sioniste" onclick="switchGame('sioniste')">SIONISTE</button>
+  <button class="nav-btn" id="nav-interrogation" onclick="switchGame('interrogation')">INTERRO</button>
+</div>
+
+<!-- ===== BUNKER ===== -->
+<div class="bunker-outer-wrapper">
+
+  <!-- ==================== JEU 1 : PRÉSIDENT (VERROUILLÉ) ==================== -->
+  <div class="game-container active" id="game-dictator">
+    <div class="crt-screen-container">
+      <div class="particle-container" id="particle-container-dictator"></div>
+      <div class="header-panel">
+        <h1 class="main-title" id="president-title">PRÉSIDENT — ÉDITION POLITIQUE</h1>
+        <div class="sub-title">DES VRAIES QUESTIONS — DES VRAIES RÉPONSES — DES IMPACTS LOGIQUES</div>
+      </div>
+      <div class="status-bar">
+        <span class="status-item"><span class="label">ANNÉE</span> <span class="value" id="ui-year">1</span></span>
+        <span class="status-item"><span class="label">STATUT</span> <span class="value" id="ui-status">STABLE</span></span>
+        <span class="status-item"><span class="label">SCORE</span> <span class="value" id="ui-score">0</span></span>
+        <span class="status-item"><span class="label">SUPER</span> <span class="value" id="ui-super">5 tours</span></span>
+        <span class="status-item"><span class="label">MORALE</span> <span class="value" id="ui-morale-label">50%</span></span>
+      </div>
+      <div class="dialogue-card">
+        <div class="pnj-portrait-box"><canvas id="caricatureCanvas" width="70" height="70"></canvas></div>
+        <div class="dialogue-text-box" style="flex:1;">
+          <div class="speaker-title" id="ui-speaker" style="color:var(--color-mil);">CONSEILLER</div>
+          <p class="speech-bubble" id="ui-speech">Chargement...</p>
+          <div class="timer-bar-container" id="timerContainer" style="display:none;">
+            <div class="timer-bar-fill" id="timerBar" style="width:100%;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="choices-container" id="ui-choices"></div>
+      <div class="game-over-overlay" id="ui-game-over">
+        <h2 class="game-over-title" id="go-title">FIN DE PARTIE</h2>
+        <p class="game-over-desc" id="go-desc">...</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin:8px 0;">
+          <button class="btn-restart" onclick="PresidentEngine.acceptDefeat()">ABANDONNER</button>
+          <button class="btn-restart" style="background:#dc2626;" onclick="PresidentEngine.embraceTyranny()">DEVENIR TYRAN</button>
+        </div>
+        <div class="history-log-container" id="go-log"></div>
+        <button class="btn-restart" onclick="PresidentEngine.restart()">RECOMMENCER</button>
+      </div>
+    </div>
+    <div class="bottom-dashboard">
+      <div class="gauges-labels-row">
+        <div class="gauge-card-item"><span>🪖 MILITAIRE</span><div class="gauge-labels"><span>RÉPRESSION</span><span>DÉFENSE</span></div><div class="gauge-horizontal-container"><div class="gauge-fill-bar fill-militaire" id="bar-mil" style="width:60%"></div></div><span class="gauge-value" id="val-mil">60%</span></div>
+        <div class="gauge-card-item"><span>👥 PEUPLE</span><div class="gauge-labels"><span>MÉFIANCE</span><span>CONFIANCE</span></div><div class="gauge-horizontal-container"><div class="gauge-fill-bar fill-peuple" id="bar-cit" style="width:60%"></div></div><span class="gauge-value" id="val-cit">60%</span></div>
+        <div class="gauge-card-item"><span>💰 TRÉSOR</span><div class="gauge-labels"><span>RUINE</span><span>PROSPÉRITÉ</span></div><div class="gauge-horizontal-container"><div class="gauge-fill-bar fill-tresor" id="bar-arg" style="width:60%"></div></div><span class="gauge-value" id="val-arg">60%</span></div>
+        <div class="gauge-card-item"><span>🏥 SANTÉ</span><div class="gauge-labels"><span>CHARLATAN</span><span>SCIENCE</span></div><div class="gauge-horizontal-container"><div class="gauge-fill-bar fill-sante" id="bar-san" style="width:60%"></div></div><span class="gauge-value" id="val-san">60%</span></div>
+        <div class="gauge-card-item"><span>⚖️ MORALE</span><div class="gauge-labels"><span>CORRUPTION</span><span>INTÉGRITÉ</span></div><div class="gauge-horizontal-container"><div class="gauge-fill-bar fill-morale" id="bar-mor" style="width:50%"></div></div><span class="gauge-value" id="val-mor">50%</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== JEU 2 : QUIZ SIONISTE ==================== -->
+  <div class="game-container" id="game-sioniste">
+    <div class="crt-screen-container" style="align-items:center; justify-content:flex-start;">
+      <div class="header-panel" style="width:100%;">
+        <h1 class="main-title" style="color:var(--color-san);">▐ QUIZ SIONISTE</h1>
+        <div class="sub-title">SIONISTE — NEUTRE — ANTISIONISTE</div>
+      </div>
+      <div class="status-bar" style="width:100%;">
+        <span class="status-item"><span class="label">QUESTION</span> <span class="value" id="sio-question">1/30</span></span>
+        <span class="status-item"><span class="label">BONNES</span> <span class="value" id="sio-score">0</span></span>
+        <span class="status-item"><span class="label">STATUT</span> <span class="value" id="sio-status">EN COURS</span></span>
+      </div>
+      <div style="text-align:center; width:100%;">
+        <img id="sio-portrait" class="sioniste-portrait" src="" alt="Portrait">
+        <div class="sioniste-name" id="sio-name">Nom de la célébrité</div>
+      </div>
+      <div class="sioniste-proof" id="sio-proof">Preuve ici…</div>
+      <div class="sioniste-choices" id="sio-choices">
+        <button class="choice-button" data-value="sioniste" onclick="SionisteGame.answer('sioniste')">🇮🇱 SIONISTE</button>
+        <button class="choice-button" data-value="neutre" onclick="SionisteGame.answer('neutre')">⚖️ NEUTRE</button>
+        <button class="choice-button" data-value="antisioniste" onclick="SionisteGame.answer('antisioniste')">🇵🇸 ANTISIONISTE</button>
+      </div>
+      <button class="btn-restart" id="sio-next" style="display:none; margin:8px 0;" onclick="SionisteGame.next()">QUESTION SUIVANTE ▶</button>
+      <div class="game-over-overlay" id="sio-gameover">
+        <h2 class="game-over-title" id="sio-go-title">FIN DU QUIZ</h2>
+        <p class="game-over-desc" id="sio-go-desc">...</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin:8px 0;">
+          <button class="btn-restart" onclick="SionisteGame.restart()">RECOMMENCER</button>
+        </div>
+        <div class="history-log-container" id="sio-go-log"></div>
+      </div>
+      <div class="sioniste-progress" id="sio-progress">▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪</div>
+    </div>
+  </div>
+
+  <!-- ==================== JEU 3 : INTERROGATION (AVEC PREVIEW FACTUELLE) ==================== -->
+  <div class="game-container" id="game-interrogation">
+    <div class="crt-screen-container" style="align-items:center; justify-content:flex-start;">
+      <div class="header-panel" style="width:100%;">
+        <h1 class="main-title" style="color:var(--color-arg);">▐ INTERROGATION</h1>
+        <div class="sub-title">5 QUESTIONS — UN CRIME — UNE DÉCISION</div>
+      </div>
+
+      <div class="status-bar" style="width:100%;">
+        <span class="status-item"><span class="label">SUSPECT</span> <span class="value" id="interro-num">1/15</span></span>
+        <span class="status-item"><span class="label">QUESTIONS</span> <span class="value" id="interro-qcount">0/5</span></span>
+        <span class="status-item"><span class="label">JUSTICE</span> <span class="value" id="interro-score">0</span></span>
+        <span class="status-item"><span class="label">STATUT</span> <span class="value" id="interro-status">EN COURS</span></span>
+      </div>
+
+      <!-- PREVIEW FACTUELLE -->
+      <div class="interro-preview" id="interro-preview">
+        <span class="crime">🔍 ACCUSATION</span> : <span id="interro-crime-type">Meurtre</span> —
+        Victime : <span class="victim" id="interro-victim">Jean Dupont</span><br>
+        <span class="reproche" id="interro-preview-text">Conflit professionnel. ADN retrouvé sur les lieux. Dernier à avoir vu la victime.</span>
+      </div>
+
+      <div class="interro-suspect-card">
+        <div class="portrait-box"><canvas id="interroCanvas" width="70" height="70"></canvas></div>
+        <div class="interro-suspect-info">
+          <div class="name" id="interro-name">Nom du suspect</div>
+          <div class="desc" id="interro-desc">Âge, profession, objet trouvé sur lui...</div>
+        </div>
+      </div>
+
+      <div class="interro-question-area">
+        <div class="q" id="interro-q-text">Posez votre question ci-dessous.</div>
+        <div class="a" id="interro-a-text"></div>
+      </div>
+
+      <div class="interro-input-area">
+        <input type="text" id="interro-input" placeholder="Tapez votre question..." maxlength="200">
+        <button class="choice-button" id="interro-btn-ask" onclick="InterrogationGame.askQuestion()">❓ POSER</button>
+      </div>
+
+      <div class="interro-questions-log" id="interro-log"></div>
+
+      <div class="interro-actions">
+        <button class="choice-button btn-prison" id="interro-btn-prison" onclick="InterrogationGame.judge(true)">🔒 PRISON</button>
+        <button class="choice-button btn-release" id="interro-btn-release" onclick="InterrogationGame.judge(false)">🔓 LIBÉRER</button>
+      </div>
+
+      <div class="interro-feedback" id="interro-feedback"></div>
+      <div class="interro-progress" id="interro-progress">▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪</div>
+
+      <button class="btn-restart" id="interro-next" style="display:none; margin:8px 0;" onclick="InterrogationGame.next()">SUSPECT SUIVANT ▶</button>
+
+      <div class="game-over-overlay" id="interro-gameover">
+        <h2 class="game-over-title" id="interro-go-title">FIN DE L'INTERROGATION</h2>
+        <p class="game-over-desc" id="interro-go-desc">...</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin:8px 0;">
+          <button class="btn-restart" onclick="InterrogationGame.restart()">RECOMMENCER</button>
+        </div>
+        <div class="history-log-container" id="interro-go-log"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+//  SOUND ENGINE (global)
+// ============================================================
+const SoundEngine = {
+  ctx: null,
+  init(){ if(!this.ctx){ this.ctx=new(window.AudioContext||window.webkitAudioContext)(); } if(this.ctx.state==='suspended') this.ctx.resume(); },
+  playTone(f,d=0.2,t='square',g=0.3,s=null){
+    this.init(); const o=this.ctx.createOscillator(),gn=this.ctx.createGain(),now=this.ctx.currentTime;
+    o.type=t; o.frequency.setValueAtTime(f,now); if(s) o.frequency.exponentialRampToValueAtTime(Math.max(s,10),now+d);
+    gn.gain.setValueAtTime(g,now); gn.gain.exponentialRampToValueAtTime(0.001,now+d);
+    o.connect(gn); gn.connect(this.ctx.destination); o.start(now); o.stop(now+d);
+  },
+  playFX(type){
+    try{
+      switch(type){
+        case 'click': this.playTone(400,'square',0.05,0.1,200); break;
+        case 'victory': this.playTone(261,'square',0.15,0.3); setTimeout(()=>this.playTone(329,'square',0.15,0.3),150); setTimeout(()=>this.playTone(392,'square',0.15,0.3),300); setTimeout(()=>this.playTone(523,'square',0.4,0.4),450); break;
+        case 'error': this.playTone(200,'sawtooth',0.4,0.4,80); break;
+        case 'correct': this.playTone(587,'sine',0.1,0.3,880); break;
+        case 'wrong': this.playTone(220,'sawtooth',0.2,0.3,110); break;
+        case 'prison': this.playTone(150,'sawtooth',0.3,0.4,80); break;
+        case 'release': this.playTone(440,'sine',0.1,0.3,880); break;
+        default: break;
+      }
+    } catch(e){}
+  }
+};
+
+// ============================================================
+//  HIGH SCORES (global)
+// ============================================================
+const HighScores = {
+  get(){ try{ return JSON.parse(localStorage.getItem('presidentScores')) || []; } catch(e){return [];} },
+  add(score, name='Anonyme', game='president'){
+    const key = game === 'sioniste' ? 'sionisteScores' : (game === 'interro' ? 'interroScores' : 'presidentScores');
+    try{
+      const s = JSON.parse(localStorage.getItem(key)) || [];
+      s.push({score, name, date:new Date().toLocaleDateString()});
+      s.sort((a,b)=>b.score-a.score); if(s.length>20) s.length=20;
+      localStorage.setItem(key, JSON.stringify(s));
+    } catch(e){}
+  }
+};
+
+// ============================================================
+//  PARTICULES (global)
+// ============================================================
+function spawnParticles(containerId, count=12, color='#ef4444'){
+  const container=document.getElementById(containerId);
+  if(!container) return;
+  for(let i=0;i<count;i++){
+    const p=document.createElement('div'); p.className='particle';
+    p.style.background=color; p.style.left=Math.random()*100+'%'; p.style.top=Math.random()*100+'%';
+    p.style.width=(2+Math.random()*4)+'px'; p.style.height=p.style.width;
+    p.style.animationDuration=(2+Math.random()*3)+'s'; p.style.animationDelay=(Math.random()*0.5)+'s';
+    container.appendChild(p); setTimeout(()=>p.remove(), 5000);
+  }
+}
+
+// ============================================================
+//  CARICATURE 2D (pour le jeu 1)
+// ============================================================
+function drawCaricature(canvasId, name, mood=0){
+  const canvas=document.getElementById(canvasId); if(!canvas) return;
+  const ctx=canvas.getContext('2d'); const w=canvas.width,h=canvas.height;
+  ctx.clearRect(0,0,w,h); ctx.fillStyle='#0a0c0e'; ctx.fillRect(0,0,w,h);
+  let seed=0; for(let i=0;i<name.length;i++) seed+=name.charCodeAt(i);
+  const rng=(max)=>Math.floor((seed*9301+49297)%233280/233280*max);
+  const random=(min,max)=>rng(max-min+1)+min;
+  const cx=w/2, cy=h/2, radius=28+random(-4,4);
+  ctx.fillStyle='#d4a373'; ctx.strokeStyle='#333'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.arc(cx,cy,radius,0,2*Math.PI); ctx.fill(); ctx.stroke();
+  const eyeY=cy-6+random(-2,2), eyeSpacing=14+random(-2,2), eyeSize=5+random(0,2);
+  ctx.fillStyle='#222';
+  ctx.fillRect(cx-eyeSpacing-eyeSize/2, eyeY-eyeSize/2, eyeSize, eyeSize);
+  ctx.fillRect(cx+eyeSpacing-eyeSize/2, eyeY-eyeSize/2, eyeSize, eyeSize);
+  ctx.fillStyle='#fff';
+  ctx.fillRect(cx-eyeSpacing-eyeSize/2+1, eyeY-eyeSize/2+1, 2, 2);
+  ctx.fillRect(cx+eyeSpacing-eyeSize/2+1, eyeY-eyeSize/2+1, 2, 2);
+  ctx.fillStyle='#b08968'; ctx.fillRect(cx-2, cy+2, 4, 6); ctx.fillRect(cx-1, cy+6, 2, 2);
+  ctx.fillStyle='#222'; const mouthY=cy+14+random(-2,2);
+  if(mood< -30){ ctx.fillRect(cx-8, mouthY, 4,2); ctx.fillRect(cx-6, mouthY-2,2,2); ctx.fillRect(cx-10, mouthY-2,2,2); }
+  else if(mood>30){ ctx.fillRect(cx+4, mouthY, 4,2); ctx.fillRect(cx+4, mouthY-2,2,2); ctx.fillRect(cx+8, mouthY-2,2,2); }
+  else { ctx.fillRect(cx-6, mouthY, 12,2); }
+  if(random(0,3)===0){ ctx.fillStyle='#1e293b'; ctx.fillRect(cx-18, cy-30, 36,8); ctx.fillRect(cx-12, cy-34, 24,6); }
+  else if(random(0,3)===1){ ctx.fillStyle='#b91c1c'; ctx.beginPath(); ctx.ellipse(cx,cy-28,22,12,0,0,Math.PI*2); ctx.fill(); ctx.fillRect(cx-6,cy-36,12,6); }
+}
+
+// ============================================================
+//  CARICATURE 2D POUR LES SUSPECTS (jeu 3)
+// ============================================================
+function drawSuspectCaricature(canvasId, name, age, job, guilty){
+  const canvas=document.getElementById(canvasId); if(!canvas) return;
+  const ctx=canvas.getContext('2d'); const w=canvas.width,h=canvas.height;
+  ctx.clearRect(0,0,w,h); ctx.fillStyle='#0a0c0e'; ctx.fillRect(0,0,w,h);
+  let seed=0; for(let i=0;i<name.length;i++) seed+=name.charCodeAt(i);
+  seed += age * 7 + (guilty ? 13 : 0);
+  const rng=(max)=>Math.floor((seed*9301+49297)%233280/233280*max);
+  const random=(min,max)=>rng(max-min+1)+min;
+  const cx=w/2, cy=h/2, radius=26+random(-3,3);
+  const skinTones = ['#d4a373','#c9a87c','#b8956a','#e0b68c','#cfa87a'];
+  ctx.fillStyle=skinTones[random(0,skinTones.length-1)];
+  ctx.strokeStyle='#333'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.arc(cx,cy,radius,0,2*Math.PI); ctx.fill(); ctx.stroke();
+  const eyeY=cy-5+random(-2,2), eyeSpacing=13+random(-2,2), eyeSize=4+random(0,2);
+  ctx.fillStyle='#222';
+  ctx.fillRect(cx-eyeSpacing-eyeSize/2, eyeY-eyeSize/2, eyeSize, eyeSize);
+  ctx.fillRect(cx+eyeSpacing-eyeSize/2, eyeY-eyeSize/2, eyeSize, eyeSize);
+  ctx.fillStyle='#fff';
+  ctx.fillRect(cx-eyeSpacing-eyeSize/2+1, eyeY-eyeSize/2+1, 2, 2);
+  ctx.fillRect(cx+eyeSpacing-eyeSize/2+1, eyeY-eyeSize/2+1, 2, 2);
+  ctx.fillStyle='#b08968'; ctx.fillRect(cx-2, cy+2, 4, 5); ctx.fillRect(cx-1, cy+5, 2, 2);
+  const mouthY=cy+13+random(-2,2);
+  ctx.fillStyle='#222';
+  if(guilty){
+    ctx.fillRect(cx-4, mouthY, 3,2); ctx.fillRect(cx+1, mouthY, 3,2);
+    ctx.fillRect(cx-2, mouthY-2, 4,2);
+  }else{
+    ctx.fillRect(cx-5, mouthY, 10,2);
+  }
+  const jobLower = job.toLowerCase();
+  if(jobLower.includes('police')||jobLower.includes('militaire')||jobLower.includes('armée')){ ctx.fillStyle='#1e293b'; ctx.fillRect(cx-14, cy-28, 28,6); ctx.fillRect(cx-8, cy-32, 16,5); }
+  else if(jobLower.includes('juge')||jobLower.includes('avocat')){ ctx.fillStyle='#222'; ctx.fillRect(cx-8, cy-30, 16,4); }
+  else if(jobLower.includes('informaticien')||jobLower.includes('technicien')){ ctx.fillStyle='#3b82f6'; ctx.fillRect(cx-10, cy-28, 20,4); }
+  else if(jobLower.includes('artiste')||jobLower.includes('musicien')){ ctx.fillStyle='#8b5cf6'; ctx.beginPath(); ctx.arc(cx, cy-30, 12, 0, Math.PI*2); ctx.fill(); }
+  if(guilty){ ctx.fillStyle='#ef4444'; ctx.fillRect(cx+20, cy-22, 5,5); }
+}
+
+// ============================================================
+//  JEU 1 : PRÉSIDENT (VERROUILLÉ - NE PAS TOUCHER)
+// ============================================================
+const PresidentEngine = (()=>{
+  let state = {
+    mil: 60, cit: 60, arg: 60, san: 60, mor: 50,
+    year: 1, gameOver: false, score: 0, history: [],
+    questions: [], achievements: [],
+    superCountdown: Math.floor(Math.random() * 6) + 5,
+    crisisCountdown: Math.floor(Math.random() * 2) + 3,
+    turnCount: 0, difficulty: 1, isSuper: false,
+    timerActive: false, timerRemaining: 15, timerInterval: null,
+    allies: [], enemies: [],
+    regionData: { IDF: 50, PACA: 50, HDF: 50, NA: 50, Bretagne: 50 },
+    branches: { used: [] }, conseillerAdvice: null, rumor: null, lastChoice: null
+  };
+  const ui = {
+    year: document.getElementById('ui-year'), status: document.getElementById('ui-status'),
+    score: document.getElementById('ui-score'), super: document.getElementById('ui-super'),
+    morale: document.getElementById('ui-morale-label'),
+    speaker: document.getElementById('ui-speaker'), speech: document.getElementById('ui-speech'),
+    choices: document.getElementById('ui-choices'),
+    gameOver: document.getElementById('ui-game-over'), goTitle: document.getElementById('go-title'),
+    goDesc: document.getElementById('go-desc'), goLog: document.getElementById('go-log'),
+    bars: { mil: document.getElementById('bar-mil'), cit: document.getElementById('bar-cit'), arg: document.getElementById('bar-arg'), san: document.getElementById('bar-san'), mor: document.getElementById('bar-mor') },
+    vals: { mil: document.getElementById('val-mil'), cit: document.getElementById('val-cit'), arg: document.getElementById('val-arg'), san: document.getElementById('val-san'), mor: document.getElementById('val-mor') },
+    canvas: document.getElementById('caricatureCanvas'),
+    timerContainer: document.getElementById('timerContainer'), timerBar: document.getElementById('timerBar')
+  };
+  const clamp = (v) => Math.min(100, Math.max(0, v));
+  const speakerList = ['Marine Le Pen','Jean-Luc Mélenchon','Éric Zemmour','Gabriel Attal','Gérald Darmanin','Édouard Philippe','François Bayrou','Nicolas Dupont-Aignan','Valérie Pécresse','Anne Hidalgo','Yannick Jadot','Fabien Roussel'];
+
+  const THEMES = {
+    'Santé': {
+      question: (r, p) => { const regions = ['Île-de-France','PACA','Hauts-de-France','Nouvelle-Aquitaine','Bretagne']; const rn = r || regions[Math.floor(Math.random()*regions.length)]; return `Les hôpitaux de ${rn} sont saturés à ${p||Math.floor(Math.random()*20+50)}%. Que faites-vous ?`; },
+      responses: [
+        { label: 'Nationaliser toutes les cliniques privées.', type: 'extreme_gauche', impacts: { mil: -10, cit: 15, arg: -25, san: 30, mor: 10 } },
+        { label: `Investir ${Math.floor(Math.random()*20+10)} milliards dans les hôpitaux publics.`, type: 'gauche', impacts: { mil: -5, cit: 10, arg: -18, san: 22, mor: 5 } },
+        { label: 'Faire appel au secteur privé pour désengorger.', type: 'droite', impacts: { mil: -2, cit: -5, arg: 12, san: 8, mor: -5 } },
+        { label: 'Réserver les soins aux citoyens français.', type: 'extreme_droite', impacts: { mil: 18, cit: -22, arg: 5, san: -15, mor: -20 } }
+      ]
+    },
+    'Économie': {
+      question: (r, p) => { const regions = ['Île-de-France','PACA','Hauts-de-France','Nouvelle-Aquitaine','Bretagne']; const rn = r || regions[Math.floor(Math.random()*regions.length)]; return `Le chômage atteint ${p||Math.floor(Math.random()*10+15)}% dans ${rn}. Quelle est votre priorité ?`; },
+      responses: [
+        { label: `Nationaliser les entreprises et créer ${Math.floor(Math.random()*50+50)}000 emplois publics.`, type: 'extreme_gauche', impacts: { mil: 8, cit: 20, arg: -30, san: 5, mor: 10 } },
+        { label: `Lancer un plan de relance de ${Math.floor(Math.random()*20+10)} milliards.`, type: 'gauche', impacts: { mil: -2, cit: 12, arg: -20, san: 8, mor: 5 } },
+        { label: 'Réduire les charges patronales pour favoriser l\'embauche.', type: 'droite', impacts: { mil: -2, cit: -3, arg: 15, san: 2, mor: -5 } },
+        { label: 'Expulser les travailleurs étrangers pour libérer des emplois.', type: 'extreme_droite', impacts: { mil: 20, cit: -25, arg: 8, san: -5, mor: -25 } }
+      ]
+    },
+    'Éducation': {
+      question: (r, p) => { const regions = ['Île-de-France','PACA','Hauts-de-France','Nouvelle-Aquitaine','Bretagne']; const rn = r || regions[Math.floor(Math.random()*regions.length)]; return `Le taux de décrochage scolaire est de ${p||Math.floor(Math.random()*10+15)}% dans ${rn}. Que faites-vous ?`; },
+      responses: [
+        { label: 'Supprimer le privé et réinvestir massivement dans l\'école publique.', type: 'extreme_gauche', impacts: { mil: -5, cit: 18, arg: -22, san: 10, mor: 12 } },
+        { label: `Recruter ${Math.floor(Math.random()*10+5)}000 professeurs supplémentaires.`, type: 'gauche', impacts: { mil: -2, cit: 12, arg: -15, san: 8, mor: 8 } },
+        { label: 'Donner plus d\'autonomie aux établissements.', type: 'droite', impacts: { mil: 0, cit: -2, arg: 10, san: 2, mor: -3 } },
+        { label: 'Expulser les élèves étrangers perturbateurs.', type: 'extreme_droite', impacts: { mil: 15, cit: -20, arg: 5, san: -8, mor: -22 } }
+      ]
+    }
+  };
+  const themeNames = Object.keys(THEMES);
+
+  function generateQuestionPool(count=5000){
+    const pool = [];
+    for (let i=0; i<count; i++) {
+      const themeName = themeNames[Math.floor(Math.random() * themeNames.length)];
+      const theme = THEMES[themeName];
+      const region = ['Île-de-France','PACA','Hauts-de-France','Nouvelle-Aquitaine','Bretagne'][Math.floor(Math.random()*5)];
+      const pct = Math.floor(Math.random()*20+10);
+      const questionText = theme.question(region, pct);
+      const responses = theme.responses.map(r => ({ ...r }));
+      const shuffled = responses.sort(() => Math.random() - 0.5);
+      const finalResponses = shuffled.map(r => ({ label: r.label, type: r.type, impacts: { mil: r.impacts.mil + (Math.random()-0.5)*6, cit: r.impacts.cit + (Math.random()-0.5)*6, arg: r.impacts.arg + (Math.random()-0.5)*6, san: r.impacts.san + (Math.random()-0.5)*6, mor: r.impacts.mor + (Math.random()-0.5)*4 } }));
+      const speaker = speakerList[Math.floor(Math.random() * speakerList.length)];
+      pool.push({ text: questionText, speaker: speaker, theme: themeName, responses: finalResponses });
+    }
+    return pool;
+  }
+
+  function generateSuperQuestion(){
+    const superEvents = [
+      { text: '💥 ÉMEUTES NATIONALES ! Le peuple se soulève.', baseImpacts: { mil: 20, cit: -35, arg: -15, san: -10, mor: -30 }, choices: [
+        { label: 'Réprimer violemment.', type: 'extreme_droite' }, { label: 'Dialoguer avec les représentants.', type: 'gauche' }, { label: 'Faire des concessions sociales.', type: 'extreme_gauche' }, { label: 'Laisser faire.', type: 'droite' }
+      ]},
+      { text: '💰 DÉCOUVERTE D\'UN GISEMENT DE PÉTROLE !', baseImpacts: { mil: 5, cit: 10, arg: 40, san: 5, mor: 10 }, choices: [
+        { label: 'Nationaliser le gisement.', type: 'extreme_gauche' }, { label: 'Partager les profits.', type: 'gauche' }, { label: 'Vendre aux plus offrants.', type: 'droite' }, { label: 'Garder le secret.', type: 'extreme_droite' }
+      ]},
+      { text: '🦠 PANDÉMIE FULGURANTE !', baseImpacts: { mil: -10, cit: -15, arg: -20, san: -35, mor: -20 }, choices: [
+        { label: 'Nationaliser les labos.', type: 'extreme_gauche' }, { label: 'Financer la recherche.', type: 'gauche' }, { label: 'Faire appel au privé.', type: 'droite' }, { label: 'Cacher l\'info.', type: 'extreme_droite' }
+      ]},
+      { text: '🤝 ACCORD HISTORIQUE À L\'ONU !', baseImpacts: { mil: -10, cit: 25, arg: 15, san: 10, mor: 30 }, choices: [
+        { label: 'Signer pour la paix.', type: 'extreme_gauche' }, { label: 'Signer avec réserves.', type: 'gauche' }, { label: 'Refuser pour la souveraineté.', type: 'droite' }, { label: 'Quitter l\'ONU.', type: 'extreme_droite' }
+      ]},
+      { text: '⚔️ TENTATIVE DE COUP D\'ÉTAT !', baseImpacts: { mil: -30, cit: -20, arg: -15, san: -10, mor: -25 }, choices: [
+        { label: 'Négocier.', type: 'gauche' }, { label: 'Écraser la rébellion.', type: 'extreme_droite' }, { label: 'Appeler le peuple.', type: 'extreme_gauche' }, { label: 'Fuir.', type: 'droite' }
+      ]}
+    ];
+    const event = superEvents[Math.floor(Math.random() * superEvents.length)];
+    const base = event.baseImpacts;
+    const responses = event.choices.map(c => {
+      let imp = { ...base };
+      if (c.type === 'extreme_gauche') { imp.cit += 15; imp.arg -= 15; imp.mor += 10; }
+      else if (c.type === 'gauche') { imp.cit += 8; imp.arg -= 8; imp.mor += 5; }
+      else if (c.type === 'droite') { imp.cit -= 8; imp.arg += 8; imp.mor -= 5; }
+      else if (c.type === 'extreme_droite') { imp.cit -= 15; imp.arg += 15; imp.mor -= 10; imp.mil += 10; }
+      return { label: c.label, type: c.type, impacts: { mil: clamp(imp.mil + (Math.random()-0.5)*6), cit: clamp(imp.cit + (Math.random()-0.5)*6), arg: clamp(imp.arg + (Math.random()-0.5)*6), san: clamp(imp.san + (Math.random()-0.5)*6), mor: clamp(imp.mor + (Math.random()-0.5)*4) } };
+    });
+    return { text: event.text, speaker: '⚡ SUPER ÉVÉNEMENT', responses: responses, isSuper: true };
+  }
+
+  function generateCrisis(){
+    const crises = [
+      { text: '💥 ÉMEUTE POPULAIRE !', impacts: { mil: 10, cit: -25, arg: -10, san: -5, mor: -20 } },
+      { text: '🦠 PANDÉMIE !', impacts: { mil: -5, cit: -10, arg: -15, san: -30, mor: -15 } },
+      { text: '📉 KRACH BOURSIER !', impacts: { mil: -5, cit: -10, arg: -35, san: -5, mor: -15 } },
+      { text: '⚔️ COUP D\'ÉTAT !', impacts: { mil: -25, cit: -15, arg: -10, san: -5, mor: -20 } },
+      { text: '🌊 CATASTROPHE NATURELLE !', impacts: { mil: -5, cit: -15, arg: -20, san: -15, mor: -10 } }
+    ];
+    return crises[Math.floor(Math.random() * crises.length)];
+  }
+
+  function generateAdvice(){ const a = ['Approche modérée.','Radicalité nécessaire.','Action forte.','Méfiez-vous des extrêmes.','Pragmatisme.','Autorité.','Écoutez les experts.']; return a[Math.floor(Math.random()*a.length)]; }
+  function generateRumor(){ const r = ['Mauvaise réception.','Économie va s\'effondrer.','Favorable aux radicaux.','Scandale imminent.','Bonne nouvelle.']; return r[Math.floor(Math.random()*r.length)]; }
+
+  function updateUI(){
+    ui.bars.mil.style.width = state.mil + '%'; ui.bars.cit.style.width = state.cit + '%'; ui.bars.arg.style.width = state.arg + '%'; ui.bars.san.style.width = state.san + '%'; ui.bars.mor.style.width = state.mor + '%';
+    ui.vals.mil.textContent = Math.round(state.mil) + '%'; ui.vals.cit.textContent = Math.round(state.cit) + '%'; ui.vals.arg.textContent = Math.round(state.arg) + '%'; ui.vals.san.textContent = Math.round(state.san) + '%'; ui.vals.mor.textContent = Math.round(state.mor) + '%';
+    ui.year.textContent = state.year; ui.score.textContent = state.score; ui.super.textContent = state.isSuper ? 'MAINTENANT !' : `${state.superCountdown} tours`; ui.morale.textContent = Math.round(state.mor) + '%';
+    let status = 'STABLE'; if (state.mil < 20 || state.cit < 20 || state.arg < 20 || state.san < 20) status = '⚠️ CRITIQUE'; else if (state.mil < 35 || state.cit < 35 || state.arg < 35 || state.san < 35) status = '⚡ TENDU'; if (state.mor < 20) status = '😈 CORRUPTION'; ui.status.textContent = status;
+    const speaker = ui.speaker.textContent || 'Conseiller'; const mood = (state.cit - state.mil) / 2; drawCaricature('caricatureCanvas', speaker, Math.min(100, Math.max(-100, mood)));
+  }
+
+  function applyImpacts(imp){
+    state.mil = clamp(state.mil + (imp.mil || 0)); state.cit = clamp(state.cit + (imp.cit || 0)); state.arg = clamp(state.arg + (imp.arg || 0)); state.san = clamp(state.san + (imp.san || 0)); state.mor = clamp(state.mor + (imp.mor || 0));
+    const total = Math.abs(imp.mil||0) + Math.abs(imp.cit||0) + Math.abs(imp.arg||0) + Math.abs(imp.san||0) + Math.abs(imp.mor||0); state.score += Math.round(total * 0.5);
+    if (state.mil >= 90 && !state.achievements.includes('militaire')) { state.achievements.push('militaire'); SoundEngine.playFX('levelup'); spawnParticles('particle-container-dictator', 20, '#ef4444'); }
+    if (state.cit >= 90 && !state.achievements.includes('peuple')) { state.achievements.push('peuple'); SoundEngine.playFX('levelup'); spawnParticles('particle-container-dictator', 20, '#f97316'); }
+    if (state.arg >= 90 && !state.achievements.includes('tresor')) { state.achievements.push('tresor'); SoundEngine.playFX('levelup'); spawnParticles('particle-container-dictator', 20, '#eab308'); }
+    if (state.san >= 90 && !state.achievements.includes('sante')) { state.achievements.push('sante'); SoundEngine.playFX('levelup'); spawnParticles('particle-container-dictator', 20, '#14b8a6'); }
+    if (state.mor >= 90 && !state.achievements.includes('morale')) { state.achievements.push('morale'); SoundEngine.playFX('levelup'); spawnParticles('particle-container-dictator', 20, '#a78bfa'); }
+  }
+
+  function checkGameOver(){ if (state.mil <= 0 || state.cit <= 0 || state.arg <= 0 || state.san <= 0 || state.mor <= 0) return true; return false; }
+
+  function endGame(victory, reason = ''){
+    ui.gameOver.style.display = 'flex';
+    if (victory) { ui.goTitle.textContent = '🏆 VICTOIRE HEROÏQUE !'; ui.goDesc.textContent = `Vous avez tenu ${state.year} ans ! Score: ${state.score} | Succès: ${state.achievements.length}`; SoundEngine.playFX('victory'); const name = prompt('Entrez votre nom:', 'Président') || 'Anonyme'; HighScores.add(state.score, name); }
+    else { ui.goTitle.textContent = '💀 RÉGIME EFFONDRÉ'; ui.goDesc.textContent = `Votre régime s'est effondré en ${state.year} ans. Score: ${state.score}. ${reason}`; SoundEngine.playFX('error'); setTimeout(() => { if (confirm('Vous avez perdu. Voulez-vous devenir tyran ?')) { PresidentEngine.embraceTyranny(); } }, 500); }
+    ui.goLog.innerHTML = state.history.map(h => '• ' + h).join('<br>');
+  }
+
+  function startTimer(seconds, onTimeout){
+    state.timerActive = true; state.timerRemaining = seconds; ui.timerContainer.style.display = 'block'; ui.timerBar.style.width = '100%';
+    if (state.timerInterval) clearInterval(state.timerInterval);
+    state.timerInterval = setInterval(() => {
+      state.timerRemaining--; ui.timerBar.style.width = (state.timerRemaining / seconds * 100) + '%';
+      if (state.timerRemaining <= 5) { SoundEngine.playFX('timer'); document.querySelectorAll('.choice-button').forEach(b => b.classList.add('timer-warning')); }
+      if (state.timerRemaining <= 0) { clearInterval(state.timerInterval); state.timerInterval = null; state.timerActive = false; ui.timerContainer.style.display = 'none'; document.querySelectorAll('.choice-button').forEach(b => b.classList.remove('timer-warning')); onTimeout(); }
+    }, 1000);
+  }
+  function stopTimer(){ if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; } state.timerActive = false; ui.timerContainer.style.display = 'none'; document.querySelectorAll('.choice-button').forEach(b => b.classList.remove('timer-warning')); }
+
+  function nextQuestion(){
+    if (state.gameOver) return;
+    if (state.questions.length === 0) { state.questions = generateQuestionPool(5000).sort(() => Math.random() - 0.5); }
+    state.difficulty = 1 + (state.year - 1) * 0.05;
+    if (state.crisisCountdown <= 0) {
+      const crisis = generateCrisis(); ui.speaker.textContent = '🔥 CRISE MAJEURE !'; ui.speech.textContent = crisis.text;
+      const imp = {}; Object.keys(crisis.impacts).forEach(k => { imp[k] = crisis.impacts[k] * state.difficulty; }); applyImpacts(imp);
+      state.history.push(`Année ${state.year}: CRISE - ${crisis.text.substring(0, 40)}...`);
+      state.crisisCountdown = Math.floor(Math.random() * 2) + 3; updateUI();
+      if (checkGameOver()) { state.gameOver = true; endGame(false, 'La crise a été fatale.'); return; }
+      state.year++; if (state.year > 30 && state.mil > 20 && state.cit > 20 && state.arg > 20 && state.san > 20 && state.mor > 20) { state.gameOver = true; endGame(true, 'Vous avez survécu 30 ans !'); return; }
+      nextQuestion(); return;
+    }
+    let isSuper = false; if (state.superCountdown <= 0) { isSuper = true; state.superCountdown = Math.floor(Math.random() * 4) + 4; }
+    let q; if (isSuper) { q = generateSuperQuestion(); state.isSuper = true; ui.super.textContent = '⚡ SUPER : MAINTENANT !'; } else { q = state.questions.pop(); state.isSuper = false; state.superCountdown--; }
+    if (Math.random() < 0.5) { state.conseillerAdvice = generateAdvice(); } else { state.conseillerAdvice = null; }
+    if (Math.random() < 0.3) { state.rumor = generateRumor(); } else { state.rumor = null; }
+    ui.speaker.textContent = q.speaker || 'Conseiller';
+    let fullText = q.text; if (state.conseillerAdvice) fullText += `\n\n💡 Conseil : ${state.conseillerAdvice}`; if (state.rumor) fullText += `\n\n🗣️ Rumeur : ${state.rumor}`; ui.speech.textContent = fullText;
+    ui.choices.innerHTML = '';
+    if (isSuper) { document.querySelectorAll('.choice-button').forEach(b => b.disabled = true); startTimer(15, () => { const buttons = document.querySelectorAll('.choice-button:not(.disabled)'); if (buttons.length > 0) { const randomBtn = buttons[Math.floor(Math.random() * buttons.length)]; randomBtn.click(); } }); }
+    q.responses.forEach((resp, idx) => {
+      const btn = document.createElement('button'); btn.className = 'choice-button';
+      const impactStr = [];
+      if (resp.impacts.mil > 0) impactStr.push(`🪖+${Math.round(resp.impacts.mil)}`); else if (resp.impacts.mil < 0) impactStr.push(`🪖${Math.round(resp.impacts.mil)}`);
+      if (resp.impacts.cit > 0) impactStr.push(`👥+${Math.round(resp.impacts.cit)}`); else if (resp.impacts.cit < 0) impactStr.push(`👥${Math.round(resp.impacts.cit)}`);
+      if (resp.impacts.arg > 0) impactStr.push(`💰+${Math.round(resp.impacts.arg)}`); else if (resp.impacts.arg < 0) impactStr.push(`💰${Math.round(resp.impacts.arg)}`);
+      if (resp.impacts.san > 0) impactStr.push(`🏥+${Math.round(resp.impacts.san)}`); else if (resp.impacts.san < 0) impactStr.push(`🏥${Math.round(resp.impacts.san)}`);
+      if (resp.impacts.mor > 0) impactStr.push(`⚖️+${Math.round(resp.impacts.mor)}`); else if (resp.impacts.mor < 0) impactStr.push(`⚖️${Math.round(resp.impacts.mor)}`);
+      btn.textContent = `${resp.label} (${impactStr.join(' ')})`;
+      btn.addEventListener('click', () => {
+        if (state.timerActive) { stopTimer(); document.querySelectorAll('.choice-button').forEach(b => b.disabled = true); }
+        SoundEngine.playFX('click');
+        const imp = {}; Object.keys(resp.impacts).forEach(k => { imp[k] = resp.impacts[k] * state.difficulty; }); applyImpacts(imp);
+        state.history.push(`Année ${state.year}: ${q.text.substring(0, 35)}... -> ${resp.label.substring(0, 25)}`);
+        state.year++; state.crisisCountdown--; state.turnCount++;
+        Object.keys(state.regionData).forEach(r => { state.regionData[r] = clamp(state.regionData[r] + (Math.random() - 0.5) * 5); });
+        updateUI();
+        if (checkGameOver()) { state.gameOver = true; endGame(false, 'Votre régime s\'est effondré.'); } else { nextQuestion(); }
+      });
+      ui.choices.appendChild(btn);
+    });
+    updateUI();
+  }
+
+  function restart(){
+    state = { mil: 60, cit: 60, arg: 60, san: 60, mor: 50, year: 1, gameOver: false, score: 0, history: [], questions: [], achievements: [], superCountdown: Math.floor(Math.random() * 6) + 5, crisisCountdown: Math.floor(Math.random() * 2) + 3, turnCount: 0, difficulty: 1, isSuper: false, timerActive: false, timerRemaining: 15, timerInterval: null, allies: [], enemies: [], regionData: { IDF: 50, PACA: 50, HDF: 50, NA: 50, Bretagne: 50 }, branches: { used: [] }, conseillerAdvice: null, rumor: null, lastChoice: null };
+    ui.gameOver.style.display = 'none'; document.getElementById('president-title').textContent = 'PRÉSIDENT — ÉDITION POLITIQUE'; stopTimer(); updateUI(); nextQuestion();
+  }
+  function acceptDefeat(){ endGame(false, 'Vous avez abandonné.'); }
+  function embraceTyranny(){
+    if (state.gameOver) return;
+    ui.gameOver.style.display = 'none';
+    state.mil = 100; state.cit = 10; state.arg = 80; state.san = 30; state.mor = 20;
+    state.year = 1; state.score = 9999;
+    document.getElementById('president-title').textContent = '👑 TYRAN ASSUMÉ - RÈGNE DE TERREUR';
+    updateUI();
+    ui.speaker.textContent = 'VOUS';
+    ui.speech.textContent = 'Vous êtes devenu un dictateur. Que faites-vous ?';
+    ui.choices.innerHTML = '';
+    const btn1 = document.createElement('button'); btn1.className = 'choice-button'; btn1.textContent = 'Écraser toute opposition'; btn1.addEventListener('click', ()=>{ state.mil=100; state.cit=0; state.mor=0; updateUI(); endGame(false, 'Le tyran est tombé.'); }); ui.choices.appendChild(btn1);
+    const btn2 = document.createElement('button'); btn2.className = 'choice-button'; btn2.textContent = 'Organiser un référendum truqué'; btn2.addEventListener('click', ()=>{ state.cit=100; state.mil=80; state.mor=50; updateUI(); endGame(false, 'Le tyran a été renversé.'); }); ui.choices.appendChild(btn2);
+  }
+  return { restart, acceptDefeat, embraceTyranny, init: restart };
+})();
+
+
+// ============================================================
+//  JEU 2 : QUIZ SIONISTE
+// ============================================================
+const SionisteGame = (()=>{
+  const personnalites = [
+    { name: "Marine Le Pen", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Marine_Le_Pen_%282017%29.jpg/220px-Marine_Le_Pen_%282017%29.jpg", position: "antisioniste", proof: "Marine Le Pen a régulièrement critiqué le 'lobby sioniste'." },
+    { name: "Jean-Luc Mélenchon", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Jean-Luc_M%C3%A9lenchon_2017.jpg/220px-Jean-Luc_M%C3%A9lenchon_2017.jpg", position: "antisioniste", proof: "Mélenchon qualifie Israël de 'régime d'apartheid'." },
+    { name: "Emmanuel Macron", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Emmanuel_Macron_2019.jpg/220px-Emmanuel_Macron_2019.jpg", position: "sioniste", proof: "Macron a renforcé les relations franco-israéliennes." },
+    { name: "Éric Zemmour", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Eric_Zemmour_2021.jpg/220px-Eric_Zemmour_2021.jpg", position: "sioniste", proof: "Zemmour se déclare ouvertement sioniste." },
+    { name: "François Bayrou", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Fran%C3%A7ois_Bayrou_2017.jpg/220px-Fran%C3%A7ois_Bayrou_2017.jpg", position: "neutre", proof: "Bayrou appelle à une solution à deux États." },
+    { name: "Nicolas Dupont-Aignan", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Nicolas_Dupont-Aignan_2017.jpg/220px-Nicolas_Dupont-Aignan_2017.jpg", position: "neutre", proof: "Dupont-Aignan est souverainiste, sans position claire." },
+    { name: "Gabriel Attal", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Gabriel_Attal_2020.jpg/220px-Gabriel_Attal_2020.jpg", position: "sioniste", proof: "Attal soutient Israël dans la lutte contre l'antisémitisme." },
+    { name: "Gérald Darmanin", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/G%C3%A9rald_Darmanin_2020.jpg/220px-G%C3%A9rald_Darmanin_2020.jpg", position: "sioniste", proof: "Darmanin a condamné le boycott d'Israël." },
+    { name: "Édouard Philippe", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/%C3%89douard_Philippe_2017.jpg/220px-%C3%89douard_Philippe_2017.jpg", position: "neutre", proof: "Philippe prône le dialogue entre Israël et Palestine." },
+    { name: "Benjamin Netanyahu", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Benjamin_Netanyahu_2020.jpg/220px-Benjamin_Netanyahu_2020.jpg", position: "sioniste", proof: "Netanyahu est l'archétype du sioniste." },
+    { name: "Mahmoud Abbas", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Mahmoud_Abbas_2018.jpg/220px-Mahmoud_Abbas_2018.jpg", position: "antisioniste", proof: "Abbas refuse la reconnaissance d'Israël comme État juif." },
+    { name: "Joe Biden", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Joe_Biden_presidential_portrait.jpg/220px-Joe_Biden_presidential_portrait.jpg", position: "sioniste", proof: "Biden est un fervent défenseur d'Israël." },
+    { name: "Bernie Sanders", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Bernie_Sanders_2020.jpg/220px-Bernie_Sanders_2020.jpg", position: "antisioniste", proof: "Sanders critique les politiques de colonisation." },
+    { name: "Donald Trump", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Donald_Trump_official_portrait.jpg/220px-Donald_Trump_official_portrait.jpg", position: "sioniste", proof: "Trump a reconnu Jérusalem comme capitale d'Israël." },
+    { name: "Jeremy Corbyn", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Jeremy_Corbyn_2020.jpg/220px-Jeremy_Corbyn_2020.jpg", position: "antisioniste", proof: "Corbyn a soutenu les mouvements pro-palestiniens." },
+    { name: "Justin Trudeau", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Justin_Trudeau_2020.jpg/220px-Justin_Trudeau_2020.jpg", position: "neutre", proof: "Trudeau soutient la solution à deux États." },
+    { name: "Nicolas Sarkozy", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Nicolas_Sarkozy_2010.jpg/220px-Nicolas_Sarkozy_2010.jpg", position: "sioniste", proof: "Sarkozy a renforcé les liens avec Israël." },
+    { name: "François Hollande", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Fran%C3%A7ois_Hollande_2017.jpg/220px-Fran%C3%A7ois_Hollande_2017.jpg", position: "neutre", proof: "Hollande a maintenu des relations équilibrées." },
+    { name: "Angela Merkel", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Angela_Merkel_2020.jpg/220px-Angela_Merkel_2020.jpg", position: "sioniste", proof: "Merkel affirme que la sécurité d'Israël est une raison d'État." },
+    { name: "Recep Tayyip Erdoğan", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Recep_Tayyip_Erdo%C4%9Fan_2020.jpg/220px-Recep_Tayyip_Erdo%C4%9Fan_2020.jpg", position: "antisioniste", proof: "Erdoğan qualifie Israël d''État terroriste'." },
+    { name: "Natalie Portman", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Natalie_Portman_2020.jpg/220px-Natalie_Portman_2020.jpg", position: "antisioniste", proof: "Portman critique la politique d'Israël." },
+    { name: "Gal Gadot", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Gal_Gadot_2021.jpg/220px-Gal_Gadot_2021.jpg", position: "sioniste", proof: "Gal Gadot est une fervente sioniste." },
+    { name: "Roger Waters", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Roger_Waters_2018.jpg/220px-Roger_Waters_2018.jpg", position: "antisioniste", proof: "Waters compare Israël à l'apartheid." },
+    { name: "Scarlett Johansson", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Scarlett_Johansson_2020.jpg/220px-Scarlett_Johansson_2020.jpg", position: "sioniste", proof: "Johansson a soutenu SodaStream en Cisjordanie." },
+    { name: "Elon Musk", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Elon_Musk_2020.jpg/220px-Elon_Musk_2020.jpg", position: "neutre", proof: "Musk n'a pas pris position clairement." },
+    { name: "Noam Chomsky", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Noam_Chomsky_2020.jpg/220px-Noam_Chomsky_2020.jpg", position: "antisioniste", proof: "Chomsky critique la politique israélienne." },
+    { name: "Bernard-Henri Lévy", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Bernard-Henri_L%C3%A9vy_2020.jpg/220px-Bernard-Henri_L%C3%A9vy_2020.jpg", position: "sioniste", proof: "BHL est un soutien affirmé d'Israël." },
+    { name: "Alain Finkielkraut", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Alain_Finkielkraut_2020.jpg/220px-Alain_Finkielkraut_2020.jpg", position: "sioniste", proof: "Finkielkraut défend l'existence d'Israël." },
+    { name: "Mark Ruffalo", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Mark_Ruffalo_2020.jpg/220px-Mark_Ruffalo_2020.jpg", position: "antisioniste", proof: "Ruffalo soutient le mouvement BDS." },
+    { name: "Kanye West", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Kanye_West_2021.jpg/220px-Kanye_West_2021.jpg", position: "antisioniste", proof: "Kanye West a tenu des propos antisémites." }
+  ];
+
+  let state = { currentIndex: 0, total: 30, score: 0, answered: false, gameOver: false, questions: [], history: [] };
+  const ui = { portrait: document.getElementById('sio-portrait'), name: document.getElementById('sio-name'), proof: document.getElementById('sio-proof'), choices: document.getElementById('sio-choices'), nextBtn: document.getElementById('sio-next'), question: document.getElementById('sio-question'), score: document.getElementById('sio-score'), status: document.getElementById('sio-status'), progress: document.getElementById('sio-progress'), gameOver: document.getElementById('sio-gameover'), goTitle: document.getElementById('sio-go-title'), goDesc: document.getElementById('sio-go-desc'), goLog: document.getElementById('sio-go-log') };
+
+  function shuffle(array){ for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; }
+  function prepareQuestions(){ const shuffled = shuffle([...personnalites]); state.questions = shuffled.slice(0, state.total); state.currentIndex = 0; state.score = 0; state.gameOver = false; state.answered = false; state.history = []; }
+  function displayQuestion(){
+    if (state.currentIndex >= state.questions.length || state.gameOver) { endGame(); return; }
+    const q = state.questions[state.currentIndex];
+    ui.portrait.src = q.img; ui.portrait.onerror = function(){ this.src = 'https://via.placeholder.com/120x120/020304/ef4444?text=?'; };
+    ui.name.textContent = q.name; ui.proof.style.display = 'none'; ui.proof.textContent = ''; ui.nextBtn.style.display = 'none'; state.answered = false;
+    document.querySelectorAll('#sio-choices .choice-button').forEach(b => { b.disabled = false; b.classList.remove('correct', 'wrong', 'reveal'); });
+    ui.question.textContent = `${state.currentIndex + 1}/${state.questions.length}`; ui.score.textContent = state.score; ui.status.textContent = 'EN COURS';
+    let progress = ''; for (let i = 0; i < state.questions.length; i++) { if (i < state.currentIndex) { const hist = state.history[i]; if (hist && hist.correct) progress += '● '; else if (hist && !hist.correct) progress += '○ '; else progress += '▪ '; } else { progress += '▪ '; } } ui.progress.textContent = progress.trim();
+    ui.gameOver.style.display = 'none';
+  }
+  function answer(choice){
+    if (state.answered || state.gameOver) return; const q = state.questions[state.currentIndex]; const correct = (choice === q.position); state.answered = true;
+    document.querySelectorAll('#sio-choices .choice-button').forEach(b => { b.disabled = true; });
+    document.querySelectorAll('#sio-choices .choice-button').forEach(b => { const val = b.dataset.value; if (val === q.position) b.classList.add('correct'); if (val === choice && !correct) b.classList.add('wrong'); });
+    ui.proof.style.display = 'block'; ui.proof.textContent = `📜 ${q.proof}`;
+    if (correct) { state.score++; SoundEngine.playFX('correct'); } else { SoundEngine.playFX('wrong'); }
+    state.history.push({ name: q.name, position: q.position, chosen: choice, correct: correct });
+    ui.score.textContent = state.score; ui.status.textContent = correct ? '✅ CORRECT' : '❌ FAUX';
+    ui.nextBtn.style.display = 'inline-block'; ui.nextBtn.textContent = state.currentIndex < state.questions.length - 1 ? 'QUESTION SUIVANTE ▶' : '🏁 VOIR LE RÉSULTAT';
+  }
+  function next(){ if (state.gameOver) return; state.currentIndex++; if (state.currentIndex >= state.questions.length) { endGame(); } else { displayQuestion(); } }
+  function endGame(){
+    state.gameOver = true; const total = state.questions.length; const score = state.score; const pct = Math.round((score / total) * 100);
+    ui.gameOver.style.display = 'flex'; ui.goTitle.textContent = pct >= 80 ? '🏆 QUIZ RÉUSSI !' : '📚 QUIZ TERMINÉ';
+    ui.goDesc.textContent = `Vous avez obtenu ${score}/${total} (${pct}%).`; if (pct >= 80) { ui.goDesc.textContent += ' Excellent !'; SoundEngine.playFX('victory'); spawnParticles('particle-container-dictator', 30, '#14b8a6'); } else if (pct >= 50) { ui.goDesc.textContent += ' Pas mal.'; } else { ui.goDesc.textContent += ' Il faut vous renseigner.'; SoundEngine.playFX('error'); }
+    let logHtml = ''; state.history.forEach((h, i) => { const icon = h.correct ? '✅' : '❌'; const pos = h.position === 'sioniste' ? '🇮🇱 Sioniste' : h.position === 'neutre' ? '⚖️ Neutre' : '🇵🇸 Antisioniste'; const chosen = h.chosen === 'sioniste' ? '🇮🇱 Sioniste' : h.chosen === 'neutre' ? '⚖️ Neutre' : '🇵🇸 Antisioniste'; logHtml += `• ${i+1}. ${h.name} → ${pos} (vous: ${chosen}) ${icon}<br>`; }); ui.goLog.innerHTML = logHtml;
+    const name = prompt('Entrez votre nom pour le classement:', 'Joueur') || 'Anonyme'; HighScores.add(score, name, 'sioniste');
+  }
+  function restart(){ prepareQuestions(); displayQuestion(); ui.gameOver.style.display = 'none'; ui.nextBtn.style.display = 'none'; }
+  function init(){ prepareQuestions(); displayQuestion(); ui.gameOver.style.display = 'none'; ui.nextBtn.style.display = 'none'; }
+  return { answer, next, restart, init };
+})();
+
+
+// ============================================================
+//  JEU 3 : INTERROGATION (AVEC PREVIEW FACTUELLE)
+// ============================================================
+const InterrogationGame = (()=>{
+  // ===== LISTE DES SUSPECTS AVEC ACCUSATIONS FACTUELLES =====
+  const suspects = [
+    { 
+      name: "Boris Ivanov", age: 34, job: "Informaticien", items: "Clé USB, passeport russe", guilty: true,
+      accusation: {
+        crime: "Meurtre",
+        victime: "Jean Dupont",
+        reproche: "Conflit professionnel avec la victime. Son ADN a été retrouvé sur les lieux. Il était le dernier à avoir vu la victime vivante."
+      }
+    },
+    { 
+      name: "Claire Dubois", age: 28, job: "Étudiante", items: "Carte étudiante, téléphone", guilty: false,
+      accusation: {
+        crime: "Vol à main armée",
+        victime: "Magasin de luxe",
+        reproche: "Présente dans le quartier au moment du vol. Aucun objet volé retrouvé chez elle. Son alibi est confirmé par des témoins."
+      }
+    },
+    { 
+      name: "Igor Petrov", age: 45, job: "Marchand d'armes", items: "Couteau, liasses de billets", guilty: true,
+      accusation: {
+        crime: "Meurtre",
+        victime: "Sergei Volkov",
+        reproche: "Dette importante envers la victime. Une arme avec ses empreintes a été découverte. Il a modifié son emploi du temps."
+      }
+    },
+    { 
+      name: "Sophie Martin", age: 32, job: "Avocate", items: "Dossier juridique, carte d'identité", guilty: false,
+      accusation: {
+        crime: "Fraude bancaire",
+        victime: "Banque nationale",
+        reproche: "A consulté des documents financiers sensibles. Un alibi solide : elle était en réunion au moment des faits."
+      }
+    },
+    { 
+      name: "Lucas Moreau", age: 40, job: "Journaliste", items: "Dictaphone, notes confidentielles", guilty: true,
+      accusation: {
+        crime: "Espionnage",
+        victime: "Ministère de la Défense",
+        reproche: "A transmis des documents classifiés. Des relevés téléphoniques montrent des appels vers une ambassade étrangère."
+      }
+    },
+    { 
+      name: "Elena Volkov", age: 29, job: "Traductrice", items: "Laptop, documents classifiés", guilty: true,
+      accusation: {
+        crime: "Trahison",
+        victime: "État français",
+        reproche: "A vendu des secrets diplomatiques. Des transactions financières suspectes ont été identifiées."
+      }
+    },
+    { 
+      name: "Thomas Leroy", age: 51, job: "Agriculteur", items: "Tracteur, outils", guilty: false,
+      accusation: {
+        crime: "Incendie volontaire",
+        victime: "Granges municipales",
+        reproche: "Présent sur les lieux. Les experts ont conclu à un départ de feu accidentel. Aucun accélérateur trouvé."
+      }
+    },
+    { 
+      name: "Anna Kowalski", age: 37, job: "Ingénieure", items: "Plans de centrale, clé de sécurité", guilty: true,
+      accusation: {
+        crime: "Sabotage",
+        victime: "Centrale nucléaire",
+        reproche: "A désactivé les systèmes de sécurité. Des contacts avec un groupe extrémiste ont été découverts."
+      }
+    },
+    { 
+      name: "Pierre Dupont", age: 42, job: "Commerçant", items: "Carnet de comptes, reçus", guilty: false,
+      accusation: {
+        crime: "Vol",
+        victime: "Bijouterie",
+        reproche: "Présent dans la rue au moment du vol. Les caméras de sa boutique confirment sa présence à ce moment."
+      }
+    },
+    { 
+      name: "Maria Santos", age: 33, job: "Infirmière", items: "Blouse, ordonnances", guilty: false,
+      accusation: {
+        crime: "Meurtre",
+        victime: "Patient",
+        reproche: "A administré un médicament. L'autopsie a conclu à une cause naturelle. Aucune négligence constatée."
+      }
+    },
+    { 
+      name: "Dmitri Sokolov", age: 48, job: "Chauffeur", items: "GPS, carte de transport", guilty: true,
+      accusation: {
+        crime: "Meurtre",
+        victime: "Politicien",
+        reproche: "Chauffeur de la victime. Son GPS montre un trajet inhabituel le jour du crime. Il a modifié son itinéraire."
+      }
+    },
+    { 
+      name: "Julie Lefèvre", age: 26, job: "Graphiste", items: "Tablette graphique, portfolio", guilty: false,
+      accusation: {
+        crime: "Vol",
+        victime: "Galerie d'art",
+        reproche: "Présente pour une commande. Aucun intérêt pour le vol. Son téléphone la localise ailleurs au moment des faits."
+      }
+    },
+    { 
+      name: "Ahmed Benali", age: 39, job: "Cuisinier", items: "Couteaux de cuisine, tablier", guilty: false,
+      accusation: {
+        crime: "Meurtre",
+        victime: "Client",
+        reproche: "A préparé le repas. Le client est mort d'une allergie non déclarée. Aucune trace de substance toxique."
+      }
+    },
+    { 
+      name: "Carlos Garcia", age: 44, job: "Musicien", items: "Guitare, partitions", guilty: true,
+      accusation: {
+        crime: "Vol",
+        victime: "Orchestre",
+        reproche: "A volé des partitions anciennes. Des témoins l'ont vu sortir avec un objet sous le bras."
+      }
+    },
+    { 
+      name: "Svetlana Petrova", age: 31, job: "Banquière", items: "Dossiers financiers, clé USB", guilty: true,
+      accusation: {
+        crime: "Fraude",
+        victime: "Investisseurs",
+        reproche: "A détourné des millions vers des comptes offshores. Des anomalies comptables ont été détectées."
+      }
+    }
+  ];
+
+  // ===== ÉTAT =====
+  let state = {
+    suspects: [],
+    currentIndex: 0,
+    total: 15,
+    score: 0,
+    questionCount: 0,
+    maxQuestions: 5,
+    suspectAnswered: false,
+    gameOver: false,
+    history: [],
+    currentSuspect: null,
+    log: []
+  };
+
+  // ===== UI =====
+  const ui = {
+    num: document.getElementById('interro-num'),
+    qcount: document.getElementById('interro-qcount'),
+    score: document.getElementById('interro-score'),
+    status: document.getElementById('interro-status'),
+    name: document.getElementById('interro-name'),
+    desc: document.getElementById('interro-desc'),
+    qText: document.getElementById('interro-q-text'),
+    aText: document.getElementById('interro-a-text'),
+    input: document.getElementById('interro-input'),
+    btnAsk: document.getElementById('interro-btn-ask'),
+    log: document.getElementById('interro-log'),
+    feedback: document.getElementById('interro-feedback'),
+    progress: document.getElementById('interro-progress'),
+    nextBtn: document.getElementById('interro-next'),
+    btnPrison: document.getElementById('interro-btn-prison'),
+    btnRelease: document.getElementById('interro-btn-release'),
+    gameOver: document.getElementById('interro-gameover'),
+    goTitle: document.getElementById('interro-go-title'),
+    goDesc: document.getElementById('interro-go-desc'),
+    goLog: document.getElementById('interro-go-log'),
+    canvas: document.getElementById('interroCanvas'),
+    crimeType: document.getElementById('interro-crime-type'),
+    victim: document.getElementById('interro-victim'),
+    previewText: document.getElementById('interro-preview-text')
+  };
+
+  // ===== MÉLANGE =====
+  function shuffle(array){ for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; }
+
+  // ===== PRÉPARER =====
+  function prepareSuspects(){
+    const shuffled = shuffle([...suspects]);
+    state.suspects = shuffled.slice(0, state.total);
+    state.currentIndex = 0;
+    state.score = 0;
+    state.gameOver = false;
+    state.history = [];
+    state.log = [];
+    state.currentSuspect = null;
+  }
+
+  // ===== GÉNÉRER UNE RÉPONSE HUMAINE =====
+  function generateAnswer(guilty, question, crimeType, victim){
+    const qLower = question.toLowerCase();
+    
+    // Réponses spécifiques pour les innocents
+    const innocentResponses = [
+      `Je suis désolé, mais je n'ai rien à voir avec le ${crimeType || 'crime'} de ${victim || 'la victime'}.`,
+      `Je comprends votre suspicion, mais j'ai un alibi solide pour ce jour-là.`,
+      `Je ne connais même pas ${victim || 'cette personne'}. Pourquoi serais-je impliqué ?`,
+      `Je peux vous donner les coordonnées de témoins qui confirmeront ma présence ailleurs.`,
+      `Je n'ai jamais mis les pieds sur les lieux du ${crimeType || 'crime'}.`
+    ];
+
+    // Réponses spécifiques pour les coupables
+    const guiltyResponses = [
+      `Je ne vais pas vous mentir, j'étais sur les lieux, mais je n'ai rien fait de mal.`,
+      `Je connaissais la victime, c'est vrai, mais ce n'est pas une raison pour m'accuser.`,
+      `J'ai des choses à cacher, mais ce n'est pas ce que vous croyez.`,
+      `Je ne peux pas tout vous dire, mais je vous jure que je ne suis pas le coupable.`,
+      `Vous voulez savoir la vérité ? Vous n'êtes pas prêt à l'entendre.`,
+      `J'ai un alibi, mais je ne peux pas le révéler pour protéger quelqu'un.`,
+      `J'étais là, mais j'étais pas le seul. Pourquoi moi ?`,
+      `Je regrette certaines de mes actions, mais pas celle-ci.`
+    ];
+
+    // Sélectionner une réponse en fonction de la culpabilité
+    let response = guilty ? 
+      guiltyResponses[Math.floor(Math.random() * guiltyResponses.length)] :
+      innocentResponses[Math.floor(Math.random() * innocentResponses.length)];
+
+    // Ajouter un indice subtil si coupable (toujours, mais pas trop évident)
+    if (guilty && Math.random() < 0.3) {
+      response += " Mais j'ai peut-être des choses à vous dire si vous me posez les bonnes questions.";
+    }
+
+    return response;
+  }
+
+  // ===== AFFICHER UN SUSPECT =====
+  function displaySuspect(){
+    if (state.currentIndex >= state.suspects.length || state.gameOver) {
+      endGame();
+      return;
+    }
+
+    state.currentSuspect = state.suspects[state.currentIndex];
+    state.questionCount = 0;
+    state.suspectAnswered = false;
+    state.log = [];
+
+    // Afficher la preview FACTUELLE (uniquement l'accusation)
+    const acc = state.currentSuspect.accusation;
+    ui.crimeType.textContent = acc.crime;
+    ui.victim.textContent = acc.victime;
+    ui.previewText.textContent = `Accusé de ${acc.crime} — ${acc.reproche}`;
+
+    // Infos du suspect
+    ui.name.textContent = state.currentSuspect.name;
+    ui.desc.textContent = `Âge: ${state.currentSuspect.age} | Profession: ${state.currentSuspect.job} | Objets: ${state.currentSuspect.items}`;
+    ui.qText.textContent = "Posez votre question ci-dessous.";
+    ui.aText.textContent = "";
+    ui.feedback.style.display = 'none';
+    ui.feedback.textContent = '';
+    ui.nextBtn.style.display = 'none';
+    ui.log.innerHTML = '';
+    ui.input.value = '';
+    ui.input.disabled = false;
+    ui.btnAsk.disabled = false;
+    ui.btnPrison.disabled = false;
+    ui.btnRelease.disabled = false;
+
+    // Dessiner la caricature
+    drawSuspectCaricature('interroCanvas', state.currentSuspect.name, state.currentSuspect.age, state.currentSuspect.job, state.currentSuspect.guilty);
+
+    // Compteurs
+    ui.num.textContent = `${state.currentIndex + 1}/${state.suspects.length}`;
+    ui.qcount.textContent = `0/${state.maxQuestions}`;
+    ui.score.textContent = state.score;
+    ui.status.textContent = 'INTERROGATION';
+
+    // Progress bar
+    let progress = '';
+    for (let i = 0; i < state.suspects.length; i++) {
+      if (i < state.currentIndex) {
+        const hist = state.history[i];
+        if (hist && hist.correct) progress += '✅ ';
+        else if (hist && !hist.correct) progress += '❌ ';
+        else progress += '▪ ';
+      } else {
+        progress += '▪ ';
+      }
+    }
+    ui.progress.textContent = progress.trim();
+
+    ui.gameOver.style.display = 'none';
+    ui.input.focus();
+  }
+
+  // ===== POSER UNE QUESTION =====
+  function askQuestion(){
+    if (state.suspectAnswered || state.gameOver) return;
+    if (state.questionCount >= state.maxQuestions) {
+      ui.qText.textContent = "Vous avez posé toutes vos questions. Décidez maintenant !";
+      ui.aText.textContent = "";
+      return;
+    }
+
+    const question = ui.input.value.trim();
+    if (question === "") {
+      ui.aText.textContent = "⚠️ Veuillez saisir une question.";
+      return;
+    }
+
+    const acc = state.currentSuspect.accusation;
+    const answer = generateAnswer(
+      state.currentSuspect.guilty,
+      question,
+      acc.crime,
+      acc.victime
+    );
+    state.questionCount++;
+
+    // Log
+    const entry = document.createElement('div');
+    entry.className = 'entry';
+    entry.innerHTML = `<span class="q">❓ ${question}</span> → <span class="a">"${answer}"</span>`;
+    ui.log.appendChild(entry);
+    ui.log.scrollTop = ui.log.scrollHeight;
+
+    ui.qText.textContent = "Dernière question posée :";
+    ui.aText.textContent = `🔊 "${answer}"`;
+    ui.qcount.textContent = `${state.questionCount}/${state.maxQuestions}`;
+    ui.input.value = '';
+    ui.input.focus();
+
+    SoundEngine.playFX('click');
+
+    if (state.questionCount >= state.maxQuestions) {
+      ui.qText.textContent = "Vous avez posé toutes vos questions. Décidez du sort du suspect.";
+      ui.input.disabled = true;
+      ui.btnAsk.disabled = true;
+      ui.btnPrison.disabled = false;
+      ui.btnRelease.disabled = false;
+    }
+  }
+
+  // ===== JUGER =====
+  function judge(prison){
+    if (state.suspectAnswered || state.gameOver) return;
+    if (state.questionCount < state.maxQuestions) {
+      if (!confirm(`Vous n'avez posé que ${state.questionCount}/${state.maxQuestions} questions. Voulez-vous vraiment juger maintenant ?`)) {
+        return;
+      }
+    }
+
+    state.suspectAnswered = true;
+    const guilty = state.currentSuspect.guilty;
+    const correct = (prison === guilty);
+
+    ui.feedback.style.display = 'block';
+    if (correct) {
+      ui.feedback.textContent = `✅ JUSTICE ! Le suspect était ${guilty ? 'coupable' : 'innocent'}. Bonne décision !`;
+      ui.feedback.style.borderColor = '#14b8a6';
+      state.score++;
+      SoundEngine.playFX('correct');
+      spawnParticles('particle-container-dictator', 15, '#14b8a6');
+    } else {
+      ui.feedback.textContent = `❌ ERREUR ! Le suspect était ${guilty ? 'coupable' : 'innocent'}. Vous avez commis une injustice.`;
+      ui.feedback.style.borderColor = '#ef4444';
+      SoundEngine.playFX('wrong');
+      spawnParticles('particle-container-dictator', 15, '#ef4444');
+    }
+
+    ui.score.textContent = state.score;
+    state.history.push({
+      name: state.currentSuspect.name,
+      guilty: guilty,
+      decision: prison ? 'prison' : 'liberation',
+      correct: correct
+    });
+
+    ui.btnPrison.disabled = true;
+    ui.btnRelease.disabled = true;
+    ui.input.disabled = true;
+    ui.btnAsk.disabled = true;
+
+    ui.nextBtn.style.display = 'inline-block';
+    ui.nextBtn.textContent = state.currentIndex < state.suspects.length - 1 ? 'SUSPECT SUIVANT ▶' : '🏁 VOIR LE RÉSULTAT';
+  }
+
+  // ===== SUSPECT SUIVANT =====
+  function next(){
+    if (state.gameOver) return;
+    state.currentIndex++;
+    if (state.currentIndex >= state.suspects.length) {
+      endGame();
+    } else {
+      displaySuspect();
+    }
+  }
+
+  // ===== FIN DE PARTIE =====
+  function endGame(){
+    state.gameOver = true;
+    const total = state.suspects.length;
+    const score = state.score;
+    const pct = Math.round((score / total) * 100);
+
+    ui.gameOver.style.display = 'flex';
+    ui.goTitle.textContent = pct >= 80 ? '🏆 INTERROGATEUR D\'EXCEPTION !' : '📋 INTERROGATION TERMINÉE';
+    ui.goDesc.textContent = `Vous avez jugé ${score}/${total} suspects correctement (${pct}%).`;
+    if (pct >= 80) {
+      ui.goDesc.textContent += ' La justice est rendue !';
+      SoundEngine.playFX('victory');
+      spawnParticles('particle-container-dictator', 30, '#14b8a6');
+    } else if (pct >= 50) {
+      ui.goDesc.textContent += ' Pas mal, mais vous pouvez mieux faire.';
+    } else {
+      ui.goDesc.textContent += ' Vous avez un sens de la justice à revoir.';
+      SoundEngine.playFX('error');
+    }
+
+    let logHtml = '';
+    state.history.forEach((h, i) => {
+      const icon = h.correct ? '✅' : '❌';
+      const decision = h.decision === 'prison' ? '🔒 Prison' : '🔓 Libéré';
+      const real = h.guilty ? '🔒 Coupable' : '🔓 Innocent';
+      logHtml += `• ${i+1}. ${h.name} → ${real} (vous: ${decision}) ${icon}<br>`;
+    });
+    ui.goLog.innerHTML = logHtml;
+
+    const name = prompt('Entrez votre nom pour le classement:', 'Enquêteur') || 'Anonyme';
+    HighScores.add(score, name, 'interro');
+  }
+
+  // ===== REDÉMARRAGE =====
+  function restart(){
+    prepareSuspects();
+    displaySuspect();
+    ui.gameOver.style.display = 'none';
+    ui.nextBtn.style.display = 'none';
+    ui.feedback.style.display = 'none';
+  }
+
+  // ===== INIT =====
+  function init(){
+    prepareSuspects();
+    displaySuspect();
+    ui.gameOver.style.display = 'none';
+    ui.nextBtn.style.display = 'none';
+    ui.feedback.style.display = 'none';
+
+    document.getElementById('interro-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        askQuestion();
+      }
+    });
+  }
+
+  return { askQuestion, judge, next, restart, init };
+})();
+
+
+// ============================================================
+//  SWITCH GAME
+// ============================================================
+function switchGame(game){
+  document.querySelectorAll('.game-container').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+  if (game === 'dictator') {
+    document.getElementById('game-dictator').classList.add('active');
+    document.getElementById('nav-dictator').classList.add('active');
+  } else if (game === 'sioniste') {
+    document.getElementById('game-sioniste').classList.add('active');
+    document.getElementById('nav-sioniste').classList.add('active');
+    SionisteGame.init();
+  } else if (game === 'interrogation') {
+    document.getElementById('game-interrogation').classList.add('active');
+    document.getElementById('nav-interrogation').classList.add('active');
+    InterrogationGame.init();
+  }
+}
+
+// ============================================================
+//  LANCEMENT
+// ============================================================
+window.addEventListener('DOMContentLoaded', ()=>{
+  PresidentEngine.init();
+  SionisteGame.init();
+  InterrogationGame.init();
+  SoundEngine.init();
+  console.log('🏆 High scores:', HighScores.get());
+});
+</script>
+</body>
+</html>
