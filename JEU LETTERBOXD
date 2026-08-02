@@ -1,0 +1,72 @@
+Résumé
+
+Le joueur entre le nom d'un profil Letterboxd. Le jeu récupère ses notes, ses films vus et éventuellement ses critiques, puis génère plusieurs mini-jeux basés sur ses préférences.
+
+Mode 1 – Devine la note
+
+Le jeu affiche un film.
+
+Exemple :
+
+Interstellar
+
+Le joueur doit deviner la note que ce profil lui a donnée.
+
+Choix :
+
+★☆☆☆☆
+★★☆☆☆
+★★★☆☆
+★★★★☆
+★★★★★
+
+Plus on est proche, plus on gagne de points.
+
+Mode 2 – Devine le film
+
+Le jeu affiche une critique rédigée par le propriétaire du profil.
+
+Exemple :
+
+« Un chef-d'œuvre visuel mais un peu trop long. »
+
+Le joueur doit retrouver le film correspondant parmi plusieurs propositions.
+
+Mode 3 – Classement
+
+Le jeu affiche 5 films.
+
+Le joueur doit les classer du préféré au moins apprécié selon ce profil, et non selon son propre avis.
+
+Exemple :
+
+Parasite
+Titanic
+Shrek
+Dune
+Whiplash
+
+Il faut retrouver l'ordre réel du profil.
+
+Mode 4 – Lequel préfère-t-il ?
+
+Deux films apparaissent.
+
+Exemple :
+
+Blade Runner 2049
+Alien
+
+Il faut choisir celui que le profil a le mieux noté.
+
+Mode 5 – Complète le Top 4
+
+Le jeu montre trois des quatre films favoris du profil.
+
+Le joueur doit retrouver le quatrième.
+
+Mode 6 – Qui a écrit cet avis ?
+
+Si plusieurs profils sont ajoutés, le jeu affiche une critique.
+
+Le joueur doit deviner à quel profil elle appartient.
